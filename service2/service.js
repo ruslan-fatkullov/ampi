@@ -1,11 +1,8 @@
 const express = require("express");
-const multer = require("multer");
+const fileUpload = require("express-fileupload")
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
-
-app.use(express.static(__dirname));
-app.use(multer({ dest: "uploads" }).single("filedata"));
 
 
 const corsOptions = {
@@ -14,14 +11,12 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
+app.use(fileUpload({}))
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const Routes = require("./routes/router");
 
 app.use("/files", Routes);
-app.get("/getHello", function (req, res) {
-    res.send("HELLO")
-})
 
 
 app.listen(3002, ()=>{

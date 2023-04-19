@@ -1,5 +1,6 @@
 const db = require("../models")
 const File = db.file
+const fs_config = require("../config/fileStorageConfig")
 exports.GetAllFiles = (req, res) => {
     File.findAll().then(function (AllFiles) {
         res.json({ files: AllFiles })
@@ -7,8 +8,8 @@ exports.GetAllFiles = (req, res) => {
         console.log("Ошибка в получении файлов" + err)
     })
 }
-/*
-app.get('/download', function(req, res){
-  const file = `${__dirname}/upload-folder/dramaticpenguin.MOV`;
-  res.download(file); // Set disposition and send it.
-});*/
+
+exports.DownLoadFile = (req, res) => {
+    const file = fs_config.FILE_STORAGE_DIRECTORY+req.body.name
+    res.download(file, req.body.name)
+}

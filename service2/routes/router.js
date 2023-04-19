@@ -2,10 +2,9 @@ const express = require("express");
 
 const router = express.Router()
 
-const controller = require("../controller/controller");
+const controller = require("../controller/service2controller");
 
-router.post("/createFile", controller.CreateNewFile)
+router.post("/uploadFile", controller.uploadFiles)
 
-router.post("/deleteFile", controller.CreateNewFile)
 
 module.exports = router;

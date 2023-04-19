@@ -4,6 +4,7 @@
 
 <script>
 import MainPageVue from './components/MainPage.vue'
+require('bootstrap');
 
 export default {
   name: 'App',
