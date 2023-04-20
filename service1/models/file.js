@@ -7,7 +7,7 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         conuntOfDownload: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         linkToFile: {
             type: Sequelize.STRING

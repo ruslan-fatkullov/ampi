@@ -1,5 +1,17 @@
 <template>
+  <router-view></router-view>
   <div class="container">
+    <div class="row justify-content-end">
+      <div class="col-md-3 ">
+        <p v-if="loggedIn">{{ userName }}</p>
+        <div v-if="!loggedIn" class="btn btn-success" @click="loginMode()">Войти</div>
+        <div v-if="loggedIn" class="btn btn-danger" @click="logout()">Выйти</div>
+        <div>{{ token }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div v-if="loggedIn" class="container">
     <div class="row">
       <div class="col-3">
         <form accept-charset="UTF-8" @submit.prevent="sendFile()" enctype="multipart/form-data; charset=utf-8">
@@ -44,17 +56,27 @@
       </div>
     </div>
   </div>
+
+  <AuthPopUpVue v-if="isAuthMode" @loginMode="loginMode()"></AuthPopUpVue>
 </template>
 
 <script>
 import axios from 'axios'
 import config from '../config/config'
+import AuthPopUpVue from './AuthPopUp.vue'
+import store from '../store';
+
 
 export default {
   data() {
     return {
       file: '',
-      files: []
+      files: [],
+      isAuthMode: false,
+      token: "",
+      loggedIn: false,
+
+      userName: ""
     }
   },
   methods: {
@@ -65,7 +87,7 @@ export default {
     async download(fileName) {
 
       const file = {
-        name: fileName
+        name: fileName,
       }
       const response = await fetch(config.SERVICE_1 + "/files/downloadFile", {
         method: 'POST',
@@ -90,7 +112,7 @@ export default {
       console.log(this.file)
       var data = new FormData()
       data.append('file', this.file)
-      data.append('author', 'Fatkullov')
+      data.append('author', store.getters.getUserLogin)
 
 
       const res = await axios.post(config.SERVICE_2 + '/files/uploadFile', data, {
@@ -100,14 +122,50 @@ export default {
       })
 
       console.log(res)
-    }
+    },
+
+    logout() {
+      localStorage.removeItem("token")
+      this.loggedIn = false
+    },
+
+    loginMode() {
+      this.isAuthMode = !this.isAuthMode
+
+      const token = localStorage.getItem("token")
+      if (token) {
+        this.loggedIn = true
+        store.dispatch("setTokenAction", token)
+        this.userName = store.getters.getUserLogin
+        console.log(store.getters.getUserLogin)
+        console.log(store.getters.getToken)
+      }
+
+
+    },
+
+
   },
   mounted() {
+
+    const token = localStorage.getItem("token")
+    if (token) {
+      this.loggedIn = true
+      store.dispatch("setTokenAction", token)
+      this.userName = store.getters.getUserLogin
+      console.log(store.getters.getUserLogin)
+      console.log(store.getters.getToken)
+    }
+
     axios.get(config.SERVICE_1 + "/files/getAllFiles").then((res) => {
       this.files = res.data.files
     }).catch(() => {
       console.log("Не удалось загрузить файлы")
     })
+  },
+
+  components: {
+    AuthPopUpVue
   }
 }
 </script>

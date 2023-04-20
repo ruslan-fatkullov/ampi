@@ -13,7 +13,7 @@ exports.uploadFiles = (req, res) => {
         File.create({
             name: file.name,
             author: req.body.author,
-            conuntOfDownload: "0",
+            conuntOfDownload: 0,
             linkToFile: fs_config.FILE_STORAGE_DIRECTORY+file.name
         }).then(()=>{
             file.mv(fs_config.FILE_STORAGE_DIRECTORY+file.name)

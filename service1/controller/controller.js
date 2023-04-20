@@ -10,6 +10,15 @@ exports.GetAllFiles = (req, res) => {
 }
 
 exports.DownLoadFile = (req, res) => {
-    const file = fs_config.FILE_STORAGE_DIRECTORY+req.body.name
-    res.download(file, req.body.name)
+    File.findOne(
+        { where: { name: req.body.name } }
+    ).then((result) => {
+        File.update(
+            { conuntOfDownload: result.conuntOfDownload+1 },
+            { where: { name: req.body.name } }
+        ).then(() => {
+            const file = fs_config.FILE_STORAGE_DIRECTORY + req.body.name
+            res.download(file, req.body.name)
+        })
+    })
 }
