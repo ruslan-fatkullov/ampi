@@ -1,29 +1,7 @@
 <template>
-  <router-view></router-view>
-  <div class="container">
-    <div class="row justify-content-end">
-      <div class="col-md-3 ">
-        <p v-if="loggedIn">{{ userName }}</p>
-        <div v-if="!loggedIn" class="btn btn-success" @click="loginMode()">Войти</div>
-        <div v-if="loggedIn" class="btn btn-danger" @click="logout()">Выйти</div>
-        <div>{{ token }}</div>
-      </div>
-    </div>
-  </div>
+  <HeaderComponentVue @logout="logout()" @login="loginMode()"></HeaderComponentVue>
 
-  <div v-if="loggedIn" class="container">
-    <div class="row">
-      <div class="col-3">
-        <form accept-charset="UTF-8" @submit.prevent="sendFile()" enctype="multipart/form-data; charset=utf-8">
-          <label>Файл</label><br>
-          <input type="file" name="file" ref="file" v-on:change="handleFileUpload()" /><br><br>
-          <input type="submit" value="Send" />
-        </form>
-      </div>
-    </div>
-
-  </div>
-
+  <SendFileComponentVue v-if="loggedIn"></SendFileComponentVue>
 
   <h1>Файлы</h1>
   <div class="container">
@@ -48,23 +26,23 @@
             <p>{{ file.conuntOfDownload }}</p>
           </div>
           <div class="col table-data">
-            <!--<p>{{ file.linkToFile }}</p>-->
-            <div @click="download(file.name)" class="btn btn-success">Скачать</div>
+            <div @click="download(file.name)" class="btn btn-download">Скачать</div>
           </div>
 
         </div>
       </div>
     </div>
   </div>
-
-  <AuthPopUpVue v-if="isAuthMode" @loginMode="loginMode()"></AuthPopUpVue>
 </template>
 
 <script>
 import axios from 'axios'
 import config from '../config/config'
-import AuthPopUpVue from './AuthPopUp.vue'
+
 import store from '../store';
+import HeaderComponentVue from './HeaderComponent.vue'
+import SendFileComponentVue from './SendFileComponent.vue';
+
 
 
 export default {
@@ -80,9 +58,6 @@ export default {
     }
   },
   methods: {
-    handleFileUpload() {
-      this.file = this.$refs.file.files[0];
-    },
     //скачивание файла
     async download(fileName) {
 
@@ -106,23 +81,6 @@ export default {
       link.click()
       link.remove()
     },
-    //отправка файла
-    async sendFile() {
-
-      console.log(this.file)
-      var data = new FormData()
-      data.append('file', this.file)
-      data.append('author', store.getters.getUserLogin)
-
-
-      const res = await axios.post(config.SERVICE_2 + '/files/uploadFile', data, {
-        headers: {
-          'Content-Type': 'multipart/form-data; charset=utf-8'
-        }
-      })
-
-      console.log(res)
-    },
 
     logout() {
       localStorage.removeItem("token")
@@ -137,11 +95,7 @@ export default {
         this.loggedIn = true
         store.dispatch("setTokenAction", token)
         this.userName = store.getters.getUserLogin
-        console.log(store.getters.getUserLogin)
-        console.log(store.getters.getToken)
       }
-
-
     },
 
 
@@ -153,8 +107,6 @@ export default {
       this.loggedIn = true
       store.dispatch("setTokenAction", token)
       this.userName = store.getters.getUserLogin
-      console.log(store.getters.getUserLogin)
-      console.log(store.getters.getToken)
     }
 
     axios.get(config.SERVICE_1 + "/files/getAllFiles").then((res) => {
@@ -165,19 +117,23 @@ export default {
   },
 
   components: {
-    AuthPopUpVue
+    HeaderComponentVue,
+    SendFileComponentVue
   }
 }
 </script>
 
 <style scoped>
+h1{
+  text-align: center;
+}
 .table {
   width: 100%;
   margin-bottom: 20px;
   border: 5px solid #fff;
   border-bottom-width: 3px;
   border-collapse: collapse;
-  outline: 3px solid #37c748;
+  outline: 3px solid #1bbc9b;
   font-size: 15px;
   background: #fff !important;
 }
@@ -186,7 +142,7 @@ export default {
 
   font-weight: bold;
   padding: 7px 7px 7px 20px;
-  background: #37c748;
+  background: #1bbc9b;
   border: none;
   text-align: left;
 }
@@ -263,5 +219,9 @@ export default {
 .input-file {
   position: relative;
   display: inline-block;
+}
+.btn-download{
+  background-color: #1bbc9b;
+  color:#f8f8f8;
 }
 </style>

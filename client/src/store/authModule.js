@@ -8,6 +8,7 @@ export default {
         authMessage: "",
         userLogin: "",
         authSuccess: false,
+        loggedIn: false
     },
     actions: {
         async loginUser(context, user) {
@@ -43,6 +44,9 @@ export default {
             context.commit("setToken", token)
             const decoded = jwt_decode(token);
             context.commit("setUserLogin", decoded.data.login)
+        },
+        setLoginAction(context) {
+            context.commit("setLogin")
         }
     },
     mutations: {
@@ -57,6 +61,9 @@ export default {
         },
         setAuthSuccess(state, message){
             state.authSuccess = message
+        },
+        setLogin(state, value){
+            state.loggedIn = value
         }
     },
     getters: {
@@ -71,6 +78,9 @@ export default {
         },
         getAuthSuccess: state => {
             return state.authSuccess
+        },
+        getLoginIn: state => {
+            return state.loggedIn
         }
     }
 }

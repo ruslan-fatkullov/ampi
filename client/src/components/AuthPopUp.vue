@@ -66,6 +66,8 @@ export default {
                 this.authResult = store.getters.getAuthMessage
                 if (store.getters.getAuthSuccess === "success") {
                     this.$emit('loginMode')
+                    
+                    store.dispatch("setLogin", true)
                 }
             })
         },
@@ -144,6 +146,7 @@ div.overlay {
     position: fixed;
     top: 0;
     width: 100%;
+    z-index: 9999;
 }
 
 div.overlay>div.login-wrapper {
