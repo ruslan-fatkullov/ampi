@@ -1,6 +1,7 @@
 const db = require("../models")
 const Report = db.report
-const fs_config = require("../config/fileStorageConfig")
+const File = db.file
+const fs_config = require("../../file_storage_config")
 
 
 exports.addReport = (req, res) => {
@@ -17,7 +18,7 @@ exports.addReport = (req, res) => {
 exports.selectReportsByAuthor = (req, res) => {
     Report.findAll({
         where:{
-            author: req.query.author
+            author: req.body.author
         }
     }).then((result)=>{
         res.json({reports: result})
@@ -27,7 +28,17 @@ exports.selectReportsByAuthor = (req, res) => {
 exports.selectReportsByFile = (req, res) => {
     Report.findAll({
         where:{
-            file: req.query.file
+            file: req.body.name
+        }
+    }).then((result)=>{
+        res.json({reports: result})
+    })
+}
+
+exports.selectFilesByAuthor = (req, res) => {
+    File.findAll({
+        where:{
+            author: req.body.author
         }
     }).then((result)=>{
         res.json({reports: result})

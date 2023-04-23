@@ -1,5 +1,6 @@
 <template>
     <div class="container">
+        <SlideUpNotification v-if="showAlert" v-bind:message="resultString"></SlideUpNotification>
 
         <div class="field__wrapper">
 
@@ -10,7 +11,7 @@
                 <div class="field__file-fake">{{ file.name ? file.name : "Файл не выбран" }}</div>
                 <div class="field__file-button">Выбрать</div>
             </label>
-            <div @click="sendFile()" class="field__file-button">Отправить</div>
+           <div @click="sendFile()" class="field__file-button">Отправить</div>
 
         </div>
 
@@ -21,11 +22,14 @@
 import axios from 'axios';
 import store from '../store';
 import config from '../config/config';
+import SlideUpNotification from "@/elements/SlideUpNotification.vue";
 
 export default {
     data() {
         return {
-            file: ""
+            file: "",
+            showAlert: false,
+            resultString: "",
         }
     },
     methods: {
@@ -38,10 +42,9 @@ export default {
             if (!this.file.name) {
                 return
             }
-            var data = new FormData()
+            const data = new FormData()
             data.append('file', this.file)
             data.append('author', store.getters.getUserLogin)
-
 
             await axios.post(config.SERVICE_2 + '/files/uploadFile', data, {
                 headers: {
@@ -49,9 +52,18 @@ export default {
                 }
             }).then((res) => {
                 this.file = ""
-                console.log(res.data.message)
+                this.resultString = res.data.message
+                this.showAlert = true
+                setTimeout(()=>{
+                    this.showAlert = false
+                    this.resultString = ""
+                },2000)
+                //console.log(res.data.message)
             })
         },
+    },
+    components:{
+        SlideUpNotification
     }
 }
 </script>

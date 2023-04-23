@@ -20,5 +20,6 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 db.report = require("./report.js")(sequelize, Sequelize);
+db.file = require("./file.js")(sequelize, Sequelize);
 
 module.exports = db;

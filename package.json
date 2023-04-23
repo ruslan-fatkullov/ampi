@@ -1,0 +1,20 @@
+{
+  "name": "ampi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "runAuthService": "nodemon authService/authService.js",
+    "runService1": "nodemon service1/service.js",
+    "runService2": "nodemon service2/service.js",
+    "runService4": "nodemon service4/service.js",
+    "dev": "concurrently / npm:runAuthService  / npm:runService1 / npm:runService2 / npm:runService4"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "nodemon": "^2.0.22"
+  }
+}

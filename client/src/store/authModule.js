@@ -8,7 +8,8 @@ export default {
         authMessage: "",
         userLogin: "",
         authSuccess: false,
-        loggedIn: false
+        loggedIn: false,
+
     },
     actions: {
         async loginUser(context, user) {
@@ -45,8 +46,8 @@ export default {
             const decoded = jwt_decode(token);
             context.commit("setUserLogin", decoded.data.login)
         },
-        setLoginAction(context) {
-            context.commit("setLogin")
+        setLoginAction(context, value) {
+            context.commit("setLogin", value)
         }
     },
     mutations: {
@@ -64,6 +65,10 @@ export default {
         },
         setLogin(state, value){
             state.loggedIn = value
+            if(!value){
+                state.userLogin = ""
+            }
+
         }
     },
     getters: {
@@ -81,6 +86,6 @@ export default {
         },
         getLoginIn: state => {
             return state.loggedIn
-        }
+        },
     }
 }
