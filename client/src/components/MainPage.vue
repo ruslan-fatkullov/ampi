@@ -177,6 +177,7 @@ export default {
 
 .tab-item:hover {
     cursor: pointer;
+    outline: 1px solid;
 }
 
 .tab-item:active {
