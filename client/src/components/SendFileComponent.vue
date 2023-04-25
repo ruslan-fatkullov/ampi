@@ -2,40 +2,40 @@
     <div class="container">
         <SlideUpNotification v-if="showAlert" v-bind:message="resultString"></SlideUpNotification>
 
-        <div class="field__wrapper">
+        <div class="upload-wrapper">
+            <input v-on:change="handleFileUpload()"  type="file" class="file-input" id="file_input" ref="file">
 
-            <input v-on:change="handleFileUpload()" ref="file" name="file" type="file" id="field__file-2"
-                class="field field__file">
-
-            <label class="field__file-wrapper" for="field__file-2">
-                <div class="field__file-fake">{{ file.name ? file.name : "Файл не выбран" }}</div>
-                <div class="field__file-button">Выбрать</div>
+            <label for="file_input">
+                <div class="input-fake">{{ file.name ? file.name : "Выбрать файл..." }}</div>
             </label>
-           <div @click="sendFile()" class="field__file-button">Отправить</div>
 
+            <button :disabled="!file" @click="sendFile()" class="btn input-button">Отправить</button>
         </div>
+
 
     </div>
 </template>
 
 <script>
-import axios from 'axios';
 import store from '../store';
-import config from '../config/config';
 import SlideUpNotification from "@/elements/SlideUpNotification.vue";
 
 export default {
     data() {
         return {
-            file: "",
+            file: '',
+            isFile: false,
+
             showAlert: false,
-            resultString: "",
+            resultString: '',
         }
     },
     methods: {
 
         handleFileUpload() {
             this.file = this.$refs.file.files[0];
+            this.isFile = true
+
         },
         //отправка файла
         async sendFile() {
@@ -46,29 +46,70 @@ export default {
             data.append('file', this.file)
             data.append('author', store.getters.getUserLogin)
 
-            await axios.post(config.SERVICE_2 + '/files/uploadFile', data, {
-                headers: {
-                    'Content-Type': 'multipart/form-data; charset=utf-8'
-                }
-            }).then((res) => {
+            store.dispatch('sendFile', data).then(() => {
                 this.file = ""
-                this.resultString = res.data.message
                 this.showAlert = true
-                setTimeout(()=>{
+                this.resultString = store.getters.getFileUploadResult
+                setTimeout(() => {
                     this.showAlert = false
                     this.resultString = ""
-                },2000)
-                //console.log(res.data.message)
+                }, 2000)
             })
         },
     },
-    components:{
+    components: {
         SlideUpNotification
     }
 }
 </script>
 
 <style scoped>
+
+.upload-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: end;
+}
+.input-fake{
+    color: #8c8787;
+    background-color: #fff;
+    border: 1px solid #e4dede;
+    width: auto;
+    padding: 0 35px;
+    height: 50px;
+}
+.input-fake:hover{
+    background-color: #f6f1f1;
+    cursor: pointer;
+    outline: 1px solid #c1b8b8;
+}
+.input-button{
+    height: 50px;
+    width: 100px;
+    background-color: #1bbc9b;
+    padding: 10px;
+    border-radius: 0 7px 7px 0;
+    color: #fff;
+}
+
+.input-button:hover{
+    cursor: pointer;
+}
+
+
+
+.file-input{
+    visibility: hidden;
+    position: absolute;
+}
+
+
+
+
+
+
+
+
 .field__wrapper {
     width: 100%;
     position: relative;
@@ -99,7 +140,7 @@ export default {
 
 .field__file-fake {
     height: 60px;
-    width: calc(100% - 130px);
+    width: calc(100% - 260px);
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
@@ -131,5 +172,4 @@ export default {
     border-radius: 0 3px 3px 0;
     cursor: pointer;
 }
-
 </style>

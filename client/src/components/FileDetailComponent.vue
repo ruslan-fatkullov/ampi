@@ -109,7 +109,17 @@ export default {
     padding: 5px;
     border: 1px solid #1bc5b3;
 }
+.image {
+    width: 100%;
+    position: relative;
+
+}
 .image img{
-    width: auto;
+    margin: 0 auto;
+    max-width: 150px;
+}
+.image .label{
+    text-align: center;
+    font-size: 32px;
 }
 </style>

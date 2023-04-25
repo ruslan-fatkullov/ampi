@@ -1,5 +1,7 @@
 <template>
     <div class="container wrapper-upload">
+
+        <AlertWindowVue v-if="showAlert" v-bind:message="resultMessage"></AlertWindowVue>
         <div class="row">
             <div class="col-sm-12 col-md-8">
 
@@ -13,17 +15,18 @@
                 <div v-for="report in reports" :key="report.id">
 
 
-                    <div @click="showDetail(report)" class="row-data">
-                        <div class="data-column">{{ report.name }}</div>
-                        <div class="data-column count">{{ report.conuntOfDownload }}</div>
-                        <div class="data-column">{{ report.createdAt }}</div>
-                        <div class="data-column delete">
+                    <div class="row-data">
+                        <div @click="showDetail(report)" class="data-column">{{ report.name }}</div>
+                        <div @click="showDetail(report)" class="data-column count">{{ report.conuntOfDownload }}</div>
+                        <div @click="showDetail(report)" class="data-column">{{ report.createdAt }}</div>
+                        <div @click="deleteFile(report)" class="data-column delete">
                             <div class="delete-button">
                                 <span>
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                                           class="bi bi-trash3" viewBox="0 0 16 16">
-                                        <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
-                                      </svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                        class="bi bi-trash3" viewBox="0 0 16 16">
+                                        <path
+                                            d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z" />
+                                    </svg>
                                 </span>
                             </div>
                         </div>
@@ -38,7 +41,8 @@
             </div>
         </div>
     </div>
-    <FileDetail v-bind:reports="reportsDetail" v-bind:file="fileDetail" @closeDetail="closeDetail()" v-if="detailActive"></FileDetail>
+    <FileDetail v-bind:reports="reportsDetail" v-bind:file="fileDetail" @closeDetail="closeDetail()" v-if="detailActive">
+    </FileDetail>
 </template>
 
 <script>
@@ -48,26 +52,34 @@ import store from "@/store";
 
 import ChartFileComponent from "@/components/ChatJSDoughunt/ChartFileComponent.vue";
 import FileDetail from "@/components/FileDetailComponent.vue"
+import AlertWindowVue from "../elements/SlideUpNotification.vue"
+
 
 
 export default {
     data() {
         return {
+            isLoadData: false,
+
             reports: [],
             detailActive: false,
 
             fileDetail: {},
-            reportsDetail: []
+            reportsDetail: [],
+
+            showAlert: false,
+            resultMessage: "",
         }
     },
     mounted() {
+        this.isLoadData = true
         const body = {
             author: store.getters.getUserLogin,
         }
-        axios.post(config.SERVICE_4 + "/report/getFilesByAuthor", body).then((res) => {
-            this.reports = res.data.reports
+        store.dispatch('getFileByAuthor', body).then(()=>{
+            this.isLoadData = false
+            this.reports = store.getters.getAuthorFiles
         })
-
     },
     methods: {
         closeDetail() {
@@ -84,11 +96,17 @@ export default {
             })
 
         },
+        deleteFile(file) {
+            store.dispatch('deleteFile', file).then(()=>{
+                this.reports = store.getters.getAuthorFiles
+            })
+        }
 
     },
     components: {
         ChartFileComponent,
-        FileDetail
+        FileDetail,
+        AlertWindowVue,
     }
 }
 </script>
@@ -108,6 +126,7 @@ export default {
     text-align: left;
     width: 35%;
     margin: auto 0 auto 10px;
+    overflow-wrap: break-word;
 }
 
 
@@ -121,7 +140,8 @@ export default {
 }
 
 .row-data {
-    height: 60px;
+    height: auto;
+    padding: 15px 0;
     display: flex;
     width: 100%;
     border-bottom: 1px solid #1bc5b3;
@@ -145,7 +165,7 @@ export default {
     color: red;
 }
 
-.delete-button:hover {
+.delete:hover .delete-button {
     transform: scale(1.1);
     cursor: pointer;
 }

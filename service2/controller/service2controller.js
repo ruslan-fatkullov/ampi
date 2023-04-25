@@ -29,3 +29,25 @@ exports.uploadFiles = (req, res) => {
         console.log(e)
     }
 }
+
+exports.deleteFile = (req, res) => {
+    try {
+        fs.unlink(fs_config.FILE_STORAGE_DIRECTORY+req.body.filename, function(err){
+            if(err) {
+                console.log("Ошибка в удалении файла")
+                res.json({status: 400, message: "Ошибка в удалении файла"})
+                return 
+            }
+            File.destroy({
+                where:{
+                    name: req.body.filename
+                }
+            }).then(()=>{
+                console.log("Файл успешно удален");
+                res.json({status: 200, message: "Файл успешно удален"})
+            })
+        })
+    } catch(e) {
+        console.log(e)
+    }
+}

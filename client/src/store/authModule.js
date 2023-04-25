@@ -9,6 +9,7 @@ export default {
         userLogin: "",
         authSuccess: false,
         loggedIn: false,
+        user: "",
 
     },
     actions: {
